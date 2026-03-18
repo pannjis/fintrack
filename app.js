@@ -45,7 +45,8 @@ let state = {
   searchQuery: '',
   selectedCategory: null,
   transactionType: 'expense',
-  editingSettingKey: null
+  editingSettingKey: null,
+  autoSyncInterval: null
 };
 
 // Chart instances
@@ -64,6 +65,7 @@ function init() {
   renderCategoryGrid('expense');
   registerServiceWorker();
   setupAmountInput();
+  startAutoSync();
 }
 
 // ===== AMOUNT INPUT FORMATTING =====
@@ -90,6 +92,57 @@ function getAmountValue() {
   // Remove dots (thousand separators) to get raw number
   const raw = input.value.replace(/\./g, '').replace(/,/g, '');
   return parseFloat(raw) || 0;
+}
+
+// ===== AUTO-SYNC (NEAR REAL-TIME) =====
+function startAutoSync() {
+  // Clear existing interval
+  if (state.autoSyncInterval) {
+    clearInterval(state.autoSyncInterval);
+    state.autoSyncInterval = null;
+  }
+
+  // Only start if GAS URL is configured
+  if (!state.settings.gasUrl) return;
+
+  // Sync every 30 seconds silently
+  state.autoSyncInterval = setInterval(silentSync, 30000);
+  console.log('Auto-sync started (every 30s)');
+
+  // Also do an initial silent sync after 2 seconds
+  setTimeout(silentSync, 2000);
+}
+
+async function silentSync() {
+  if (!state.settings.gasUrl) return;
+
+  try {
+    const pullUrl = state.settings.gasUrl + '?action=getTransactions';
+    const response = await fetch(pullUrl);
+    const result = await response.json();
+
+    if (result.success && result.transactions) {
+      const localIds = new Set(state.transactions.map(t => t.id));
+      let newCount = 0;
+
+      result.transactions.forEach(remoteTxn => {
+        if (!localIds.has(remoteTxn.id)) {
+          state.transactions.push(remoteTxn);
+          newCount++;
+        }
+      });
+
+      if (newCount > 0) {
+        saveData();
+        navigateTo(state.currentPage);
+        showToast(`${newCount} transaksi baru dari perangkat lain`);
+        console.log(`Silent sync: ${newCount} new transactions pulled`);
+      }
+    }
+  } catch (e) {
+    // Silent fail - don't bother user
+    console.log('Silent sync failed:', e.message);
+  }
 }
 
 function registerServiceWorker() {
@@ -799,6 +852,11 @@ function saveSetting() {
   renderProfile();
   updateGreeting();
   showToast('Pengaturan berhasil disimpan');
+
+  // Restart auto-sync if GAS URL was changed
+  if (state.editingSettingKey === 'gasUrl') {
+    startAutoSync();
+  }
 }
 
 // ===== SYNC WITH GOOGLE SHEETS =====
