@@ -813,8 +813,8 @@ async function syncData() {
   document.getElementById('sync-status').textContent = 'Menyinkronkan...';
 
   try {
-    // Send all local transactions to Google Sheets
-    const response = await fetch(state.settings.gasUrl, {
+    // STEP 1: Push local transactions to Google Sheets
+    const pushResponse = await fetch(state.settings.gasUrl, {
       method: 'POST',
       body: JSON.stringify({
         action: 'syncTransactions',
@@ -822,15 +822,38 @@ async function syncData() {
       }),
       headers: { 'Content-Type': 'text/plain' }
     });
+    const pushResult = await pushResponse.json();
 
-    const result = await response.json();
+    // STEP 2: Pull ALL transactions from Google Sheets
+    const pullUrl = state.settings.gasUrl + '?action=getTransactions';
+    const pullResponse = await fetch(pullUrl);
+    const pullResult = await pullResponse.json();
 
-    if (result.success) {
-      showToast(`Sinkronisasi berhasil! ${result.added || 0} transaksi baru`);
-      document.getElementById('sync-status').textContent = 'Terakhir sync: ' + new Date().toLocaleTimeString('id-ID');
+    if (pullResult.success && pullResult.transactions) {
+      // Merge: add remote transactions that don't exist locally
+      const localIds = new Set(state.transactions.map(t => t.id));
+      let newCount = 0;
+
+      pullResult.transactions.forEach(remoteTxn => {
+        if (!localIds.has(remoteTxn.id)) {
+          state.transactions.push(remoteTxn);
+          newCount++;
+        }
+      });
+
+      // Save merged data
+      saveData();
+
+      // Refresh current page
+      navigateTo(state.currentPage);
+
+      const pushed = pushResult.added || 0;
+      showToast(`Sinkronisasi berhasil! ${pushed} dikirim, ${newCount} diterima`);
+      document.getElementById('sync-status').textContent =
+        'Terakhir sync: ' + new Date().toLocaleTimeString('id-ID');
     } else {
-      showToast('Gagal sinkronisasi: ' + (result.error || 'Unknown error'), 'error');
-      document.getElementById('sync-status').textContent = 'Gagal sinkronisasi';
+      showToast(`Data dikirim (${pushResult.added || 0} baru), tetapi gagal mengambil data dari server`, 'error');
+      document.getElementById('sync-status').textContent = 'Sync parsial';
     }
   } catch (e) {
     console.error('Sync error:', e);
