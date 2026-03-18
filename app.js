@@ -63,6 +63,33 @@ function init() {
   renderDashboard();
   renderCategoryGrid('expense');
   registerServiceWorker();
+  setupAmountInput();
+}
+
+// ===== AMOUNT INPUT FORMATTING =====
+function setupAmountInput() {
+  const input = document.getElementById('input-amount');
+  if (!input) return;
+
+  input.addEventListener('input', function(e) {
+    // Remove all non-digit characters
+    let value = this.value.replace(/[^0-9]/g, '');
+    // Remove leading zeros
+    value = value.replace(/^0+/, '') || '';
+    // Format with thousand separator dots
+    if (value) {
+      this.value = new Intl.NumberFormat('id-ID').format(parseInt(value));
+    } else {
+      this.value = '';
+    }
+  });
+}
+
+function getAmountValue() {
+  const input = document.getElementById('input-amount');
+  // Remove dots (thousand separators) to get raw number
+  const raw = input.value.replace(/\./g, '').replace(/,/g, '');
+  return parseFloat(raw) || 0;
 }
 
 function registerServiceWorker() {
@@ -337,10 +364,10 @@ function renderMonthlyChart() {
           }
         },
         tooltip: {
-          backgroundColor: '#1a1a2e',
-          titleColor: '#e8e8e8',
-          bodyColor: '#a0a0b8',
-          borderColor: 'rgba(255,255,255,0.1)',
+          backgroundColor: '#FFFFFF',
+          titleColor: '#1B1D2A',
+          bodyColor: '#6B7280',
+          borderColor: '#E5E7EB',
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
@@ -456,10 +483,10 @@ function renderCategoryChart(month) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1a1a2e',
-          titleColor: '#e8e8e8',
-          bodyColor: '#a0a0b8',
-          borderColor: 'rgba(255,255,255,0.1)',
+          backgroundColor: '#FFFFFF',
+          titleColor: '#1B1D2A',
+          bodyColor: '#6B7280',
+          borderColor: '#E5E7EB',
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
@@ -647,7 +674,7 @@ function setInputDate() {
 }
 
 function saveTransaction() {
-  const amount = parseFloat(document.getElementById('input-amount').value);
+  const amount = getAmountValue();
   const description = document.getElementById('input-description').value.trim();
   const date = document.getElementById('input-date').value;
 
