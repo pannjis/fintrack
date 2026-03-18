@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FinTrack - Finance Tracker</title>
+    <meta name="description" content="Aplikasi pencatat keuangan pribadi">
+    <meta name="theme-color" content="#6C63FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <section id="page-dashboard" class="page active">
+            <header class="page-header">
+                <div class="header-left">
+                    <span class="material-icons-round header-icon">account_balance_wallet</span>
+                </div>
+                <h1 class="header-title">FinTrack</h1>
+                <div class="header-right">
+                    <div class="avatar" onclick="navigateTo('profile')">
+                        <span class="material-icons-round">person</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="greeting">
+                    <h2 id="greeting-text">Selamat Pagi</h2>
+                    <p id="greeting-name">Halo, User 👋</p>
+                </div>
+
+                <!-- Balance Card -->
+                <div class="balance-card">
+                    <div class="balance-card-decoration"></div>
+                    <div class="balance-card-decoration-2"></div>
+                    <div class="balance-top">
+                        <span class="balance-label">Saldo Keseluruhan</span>
+                        <span class="balance-month" id="balance-month">Maret 2026</span>
+                    </div>
+                    <div class="balance-amount" id="total-balance">Rp 0</div>
+                    <div class="balance-details">
+                        <div class="balance-item">
+                            <div class="balance-item-icon income-icon">
+                                <span class="material-icons-round">south_west</span>
+                            </div>
+                            <div class="balance-item-info">
+                                <span class="balance-item-label">Pemasukan</span>
+                                <span class="balance-item-amount" id="total-income">Rp 0</span>
+                            </div>
+                        </div>
+                        <div class="balance-divider"></div>
+                        <div class="balance-item">
+                            <div class="balance-item-icon expense-icon">
+                                <span class="material-icons-round">north_east</span>
+                            </div>
+                            <div class="balance-item-info">
+                                <span class="balance-item-label">Pengeluaran</span>
+                                <span class="balance-item-amount" id="total-expense">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="openAddModal('income')">
+                        <div class="quick-action-icon qi-income">
+                            <span class="material-icons-round">add_circle_outline</span>
+                        </div>
+                        <span>Pemasukan</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="openAddModal('expense')">
+                        <div class="quick-action-icon qi-expense">
+                            <span class="material-icons-round">remove_circle_outline</span>
+                        </div>
+                        <span>Pengeluaran</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="navigateTo('statistics')">
+                        <div class="quick-action-icon qi-stats">
+                            <span class="material-icons-round">insights</span>
+                        </div>
+                        <span>Statistik</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="navigateTo('transactions')">
+                        <div class="quick-action-icon qi-history">
+                            <span class="material-icons-round">history</span>
+                        </div>
+                        <span>Riwayat</span>
+                    </button>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="section-header">
+                    <h3>Transaksi Terakhir</h3>
+                    <button class="link-btn" onclick="navigateTo('transactions')">Lihat Semua</button>
+                </div>
+                <div id="recent-transactions" class="transaction-list">
+                    <div class="empty-state" id="empty-recent">
+                        <span class="material-icons-round">receipt_long</span>
+                        <p>Belum ada transaksi</p>
+                        <small>Tap + untuk menambah transaksi pertama</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== STATISTICS PAGE ===== -->
+        <section id="page-statistics" class="page">
+            <header class="page-header">
+                <div class="header-left"></div>
+                <h1 class="header-title">Statistik</h1>
+                <div class="header-right"></div>
+            </header>
+
+            <div class="page-content">
+                <!-- Month Selector -->
+                <div class="month-selector">
+                    <button class="month-nav-btn" id="prev-month" onclick="changeMonth(-1)">
+                        <span class="material-icons-round">chevron_left</span>
+                    </button>
+                    <span class="month-label" id="current-month-label">Maret 2026</span>
+                    <button class="month-nav-btn" id="next-month" onclick="changeMonth(1)">
+                        <span class="material-icons-round">chevron_right</span>
+                    </button>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="stats-summary">
+                    <div class="stat-card stat-income">
+                        <div class="stat-icon-wrap">
+                            <span class="material-icons-round">trending_up</span>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Pemasukan</div>
+                            <div class="stat-amount" id="stats-income">Rp 0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-expense">
+                        <div class="stat-icon-wrap">
+                            <span class="material-icons-round">trending_down</span>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">Pengeluaran</div>
+                            <div class="stat-amount" id="stats-expense">Rp 0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Grafik 6 Bulan Terakhir</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthly-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Kategori Pengeluaran</h3>
+                    </div>
+                    <div class="chart-container chart-doughnut">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                    <div id="category-legend" class="category-legend"></div>
+                </div>
+
+                <!-- Month Transactions -->
+                <div class="section-header">
+                    <h3>Riwayat Bulan Ini</h3>
+                </div>
+                <div id="stats-transactions" class="transaction-list"></div>
+            </div>
+        </section>
+
+        <!-- ===== TRANSACTIONS PAGE ===== -->
+        <section id="page-transactions" class="page">
+            <header class="page-header">
+                <div class="header-left"></div>
+                <h1 class="header-title">Transaksi</h1>
+                <div class="header-right">
+                    <button class="icon-btn" onclick="toggleSearch()">
+                        <span class="material-icons-round">search</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Search Bar -->
+                <div class="search-bar hidden" id="search-bar">
+                    <span class="material-icons-round search-icon">search</span>
+                    <input type="text" id="search-input" placeholder="Cari transaksi..." oninput="filterTransactions()">
+                    <button class="search-clear" onclick="clearSearch()">
+                        <span class="material-icons-round">close</span>
+                    </button>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">Semua</button>
+                    <button class="filter-tab" data-filter="income" onclick="setFilter('income', this)">Pemasukan</button>
+                    <button class="filter-tab" data-filter="expense" onclick="setFilter('expense', this)">Pengeluaran</button>
+                </div>
+
+                <!-- Transactions List -->
+                <div id="all-transactions" class="transaction-list">
+                    <div class="empty-state" id="empty-all">
+                        <span class="material-icons-round">receipt_long</span>
+                        <p>Belum ada transaksi</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PROFILE PAGE ===== -->
+        <section id="page-profile" class="page">
+            <header class="page-header">
+                <div class="header-left"></div>
+                <h1 class="header-title">Profil</h1>
+                <div class="header-right"></div>
+            </header>
+
+            <div class="page-content">
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar">
+                            <span class="material-icons-round">person</span>
+                        </div>
+                    </div>
+                    <h2 id="profile-name" class="profile-name">User</h2>
+                    <p class="profile-subtitle">Personal Finance Tracker</p>
+                </div>
+
+                <!-- Settings -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Pengaturan</h3>
+                    <div class="setting-item" onclick="editSetting('name')">
+                        <div class="setting-left">
+                            <div class="setting-icon si-blue">
+                                <span class="material-icons-round">person</span>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-label">Nama</div>
+                                <div class="setting-value" id="setting-name">User</div>
+                            </div>
+                        </div>
+                        <span class="material-icons-round setting-arrow">chevron_right</span>
+                    </div>
+                    <div class="setting-item" onclick="editSetting('gasUrl')">
+                        <div class="setting-left">
+                            <div class="setting-icon si-green">
+                                <span class="material-icons-round">link</span>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-label">Google Apps Script URL</div>
+                                <div class="setting-value" id="setting-gas-url">Belum diatur</div>
+                            </div>
+                        </div>
+                        <span class="material-icons-round setting-arrow">chevron_right</span>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Data</h3>
+                    <div class="setting-item" onclick="syncData()">
+                        <div class="setting-left">
+                            <div class="setting-icon si-purple">
+                                <span class="material-icons-round">sync</span>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-label">Sinkronisasi</div>
+                                <div class="setting-value" id="sync-status">Sinkronkan dengan Google Sheets</div>
+                            </div>
+                        </div>
+                        <span class="material-icons-round setting-arrow">chevron_right</span>
+                    </div>
+                    <div class="setting-item" onclick="exportData()">
+                        <div class="setting-left">
+                            <div class="setting-icon si-orange">
+                                <span class="material-icons-round">download</span>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-label">Export CSV</div>
+                                <div class="setting-value">Download semua transaksi</div>
+                            </div>
+                        </div>
+                        <span class="material-icons-round setting-arrow">chevron_right</span>
+                    </div>
+                    <div class="setting-item setting-danger" onclick="clearAllData()">
+                        <div class="setting-left">
+                            <div class="setting-icon si-red">
+                                <span class="material-icons-round">delete_forever</span>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-label">Hapus Semua Data</div>
+                                <div class="setting-value">Hapus data lokal</div>
+                            </div>
+                        </div>
+                        <span class="material-icons-round setting-arrow">chevron_right</span>
+                    </div>
+                </div>
+
+                <div class="app-info">
+                    <p class="app-version">FinTrack v1.0.0</p>
+                    <p class="app-credit">Made with ❤️</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <nav id="bottom-nav">
+        <button class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+            <span class="material-icons-round nav-icon">home</span>
+            <span class="nav-label">Beranda</span>
+        </button>
+        <button class="nav-item" data-page="statistics" onclick="navigateTo('statistics')">
+            <span class="material-icons-round nav-icon">insights</span>
+            <span class="nav-label">Statistik</span>
+        </button>
+        <div class="nav-fab-space"></div>
+        <button class="nav-item" data-page="transactions" onclick="navigateTo('transactions')">
+            <span class="material-icons-round nav-icon">receipt_long</span>
+            <span class="nav-label">Transaksi</span>
+        </button>
+        <button class="nav-item" data-page="profile" onclick="navigateTo('profile')">
+            <span class="material-icons-round nav-icon">person</span>
+            <span class="nav-label">Profil</span>
+        </button>
+    </nav>
+
+    <!-- ===== FAB (Floating Action Button) ===== -->
+    <button id="fab-add" class="fab" onclick="openAddModal()">
+        <span class="material-icons-round">add</span>
+    </button>
+
+    <!-- ===== MODAL OVERLAY ===== -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+
+    <!-- ===== ADD TRANSACTION MODAL ===== -->
+    <div id="modal-add" class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 id="modal-title">Tambah Transaksi</h2>
+            <button class="icon-btn" onclick="closeModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="type-toggle">
+                <button class="type-btn active" id="type-expense" data-type="expense" onclick="setTransactionType('expense')">
+                    <span class="material-icons-round">arrow_upward</span>
+                    Pengeluaran
+                </button>
+                <button class="type-btn" id="type-income" data-type="income" onclick="setTransactionType('income')">
+                    <span class="material-icons-round">arrow_downward</span>
+                    Pemasukan
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jumlah</label>
+                <div class="amount-input-wrap">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="number" id="input-amount" placeholder="0" inputmode="numeric" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kategori</label>
+                <div class="category-grid" id="category-grid">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Deskripsi</label>
+                <input type="text" id="input-description" placeholder="Catatan transaksi..." class="text-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tanggal</label>
+                <input type="date" id="input-date" class="text-input">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btn-save" class="btn-primary" onclick="saveTransaction()">
+                <span class="material-icons-round">check</span>
+                Simpan Transaksi
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== EDIT SETTING MODAL ===== -->
+    <div id="modal-setting-overlay" class="modal-overlay" onclick="closeSettingModal()"></div>
+    <div id="modal-setting" class="modal modal-sm">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h2 id="setting-modal-title">Edit</h2>
+            <button class="icon-btn" onclick="closeSettingModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <input type="text" id="setting-input" class="text-input" placeholder="">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="saveSetting()">
+                <span class="material-icons-round">check</span>
+                Simpan
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== CONFIRM DIALOG ===== -->
+    <div id="confirm-overlay" class="modal-overlay" onclick="closeConfirm()"></div>
+    <div id="confirm-dialog" class="confirm-dialog">
+        <div class="confirm-icon">
+            <span class="material-icons-round">warning</span>
+        </div>
+        <h3 id="confirm-title">Konfirmasi</h3>
+        <p id="confirm-message">Apakah Anda yakin?</p>
+        <div class="confirm-actions">
+            <button class="btn-cancel" onclick="closeConfirm()">Batal</button>
+            <button class="btn-danger" id="confirm-btn" onclick="">Ya, Hapus</button>
+        </div>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toast" class="toast">
+        <span class="material-icons-round toast-icon">check_circle</span>
+        <span class="toast-message"></span>
+    </div>
+
+    <!-- ===== LOADING ===== -->
+    <div id="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Memuat...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
