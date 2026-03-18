@@ -329,7 +329,7 @@ function renderMonthlyChart() {
           display: true,
           position: 'bottom',
           labels: {
-            color: '#a0a0b8',
+            color: '#6B7280',
             font: { size: 11, family: 'Inter' },
             padding: 16,
             usePointStyle: true,
@@ -356,12 +356,12 @@ function renderMonthlyChart() {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#6c6c80', font: { size: 11, family: 'Inter' } }
+          ticks: { color: '#9CA3AF', font: { size: 11, family: 'Inter' } }
         },
         y: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
+          grid: { color: '#F3F4F6' },
           ticks: {
-            color: '#6c6c80',
+            color: '#9CA3AF',
             font: { size: 10, family: 'Inter' },
             callback: function(value) {
               if (value >= 1000000) return (value / 1000000).toFixed(1) + 'jt';
